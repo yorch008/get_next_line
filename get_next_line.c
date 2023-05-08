@@ -10,7 +10,22 @@
 /*                                                                            */
 /* ************************************************************************** */
 
+#include <unistd.h>
+#include <stdio.h>
+#include <fcntl.h>
+
 char *get_next_line(int fd)
 {
     
+}
+int main(void)
+{
+    int fd;
+    char *line;
+
+    fd = open("text.txt", O_RDONLY);
+    if (fd == -1)
+        return NULL;
+    else
+
 }
