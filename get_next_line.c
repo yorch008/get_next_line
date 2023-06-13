@@ -14,35 +14,47 @@
 
 char *ft_read(int fd, char *remaining_data)
 {
-    int bytes_read = 0;
     char buffer[BUFFER_SIZE + 1];
-    char    *tmp_free;
-    
-    if(!remaining_data)
+    int bytes_read;
+
+    bytes_read = 0;
+    if(remaining_data == NULL) //Cuando esta vacio remaining, le metemos un caracter vacio
         remaining_data = ft_strdup("");
-    if (remaining_data == NULL)
-        return NULL;
-    while(ft_strchr(remaining_data, '\n') == NULL)
-    {   
+    while(ft_strchr(remaining_data, '\n') == NULL) //hasta que no encuentre \n
+    {  
         bytes_read = read(fd, buffer, BUFFER_SIZE);
-        if (bytes_read == 0) //Fin del archivo
-            break;
-        if (bytes_read == -1) // Error de lectura
+        if(bytes_read == -1) //fallo de lectura
         {
             free(remaining_data);
-            return NULL;
+            return (NULL);
         }
+
+        if(bytes_read == 0) //Ha leido todo el archivo
+            break;
         buffer[bytes_read] = 0;
-        tmp_free = remaining_data;
-        remaining_data = ft_strjoin(remaining_data, buffer);
-        free(tmp_free);
+        remaining_data = ft_strjoin(remaining_data, buffer); //guardamos y unimos
     }
-    if (ft_strlen(remaining_data) == 0) // Archivo vacío
-    {
-        free(remaining_data);
-        return NULL;
-    }
-    return (remaining_data);
+    return remaining_data;
+
+}
+
+// char ft_get_line()
+// {
+
+// }
+char *ft_clean_line(char *remaining_data)
+{
+    int i;
+    int cont;
+    char *new_line;
+
+    cont = 0;
+    i = 0;
+    
+    while(remaining_data[i] != '\n' && remaining_data[i] != '\0') //calculamos la longitud de la primera linea
+        i++;
+    new_line = ft_substr(remaining_data, i + 1, ft_strlen(remaining_data) - i);
+    return new_line;
 }
 
 char *get_next_line(int fd)
@@ -50,60 +62,33 @@ char *get_next_line(int fd)
     static char *remaining_data;
     char *line;
     int cont;
-    int cont2;
-    cont2 = 0;
+
+
     cont = 0;
-    
     remaining_data = ft_read(fd, remaining_data);
-    if (remaining_data == NULL)
+    if(remaining_data == NULL) //No se puedo abrir el archivo
         return NULL;
-    if (ft_strlen(remaining_data) == 0)
-    {
-        free(remaining_data);
-        remaining_data = NULL;
-        return NULL;
-    }
-    while(remaining_data[cont] != '\n' && remaining_data[cont] != '\0')
+    while(remaining_data[cont] != '\n' && remaining_data[cont] != '\0') //calculamos la longitud de la primera linea
         cont++;
-    line = ft_substr(remaining_data, 0, cont + 1);
-    if (line == NULL)
-    {
-        free(remaining_data);
-        return NULL;
-    }
-    while(remaining_data[cont + cont2] != '\n' && remaining_data[cont + cont2] != '\0')
-        cont2++;
-    remaining_data = ft_substr(remaining_data, cont + 1, cont2);
-    // free(remaining_data);
-    // remaining_data = NULL;
-    return line;
+    line = ft_substr(remaining_data, 0, cont + 1);// copiamos de un string a otro una longitud(cont)
+    remaining_data = ft_clean_line(remaining_data); // limpiamos la linea
+    return (line);
 }
+
 // int main(void)
 // {
-//     int fd;
-//     char *line;
-//     int i;
+//     int     fd;
+//     char    *str;
+//     int     i;
 //     i = 0;
-
-//     // atexit(system("leaks -q gnl"));
 //     fd = open("text.txt", O_RDONLY);
-//     if (fd == -1 || BUFFER_SIZE <= 0)
+//     while ((i <= 6))
 //     {
-//         printf("Error al abrir el archivo.\n");
-//         return 1;
-//     }
-//     while (i < 10 && line != NULL)
-//     {
-//         line = get_next_line(fd);
-//         // if (line == NULL || ft_strlen(line) == 0) // Verificar si la línea es NULL o vacía
-//         // {
-//         //     free(line);
-//         //     break;
-//         // }
-//         printf("%s", line);
-//         free(line);
+//         str = get_next_line(fd);
+//         printf("line %i=>%s\n", i + 1, str);
+//         free(str);
 //         i++;
 //     }
-//     close(fd);
-//     return 0;
+//     printf("BUFFER_SIZE = %d\n", BUFFER_SIZE);
+//     return (0);
 // }
